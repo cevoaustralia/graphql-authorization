@@ -1,0 +1,28 @@
+{
+  "name": "graphql-authorization",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaehyeon-kim/graphql-authorization.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jaehyeon-kim/graphql-authorization/issues"
+  },
+  "homepage": "https://github.com/jaehyeon-kim/graphql-authorization#readme",
+  "dependencies": {
+    "apollo-server": "^2.25.2",
+    "graphql": "^15.5.1",
+    "oso": "^0.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.9"
+  }
+}
