@@ -1,17 +1,4 @@
-const { Pool } = require("pg");
-
-const pool = new Pool({
-  host: process.env.HOST || "localhost",
-  port: 5432,
-  database: "devdb",
-  user: "devuser",
-  password: "password",
-});
-const db = {
-  query: async (text, params, callback) => {
-    return pool.query(text, params, callback);
-  },
-};
+const db = require("./utils/db");
 
 const getUser = async (name) => {
   try {
