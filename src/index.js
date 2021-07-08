@@ -1,14 +1,18 @@
 const { ApolloServer } = require("apollo-server");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
-const { getUser } = require("./utils");
+const { RolePasser } = require("./utils/directive");
+const User = require("./models/user");
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  schemaDirectives: {
+    passer: RolePasser,
+  },
   context: async ({ req }) => {
-    const username = (req.headers && req.headers.username) || "";
-    const user = await getUser(username);
+    const name = req.headers.authorization;
+    const user = await User.initUser(name);
     return {
       user: user,
     };
