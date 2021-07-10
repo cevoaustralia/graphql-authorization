@@ -1,4 +1,4 @@
-john.doe,guest
-irene.crow,member
-henry.wade,admin
-anna.hill,contributor
+guest-user,guest
+member-user,member
+admin-user,admin
+contributor-user,contributor
