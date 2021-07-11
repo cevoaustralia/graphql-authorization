@@ -1,16 +1,13 @@
 const { ForbiddenError } = require("apollo-server");
-const { initOso } = require("./loads");
 
 const checkContractSum = async (args) => {
-  const oso = await initOso();
+  const oso = args[2].oso;
   const user = args[2].user;
+  console.log(JSON.stringify(user));
   const items = !(args[0] instanceof Array) ? [args[0]] : args[0];
   for (const item of items) {
-    const isAllowed = await oso.isAllowed(
-      user,
-      "contract_sum",
-      Object.keys(item)
-    );
+    const isAllowed = await oso.isAllowed(user, "contract_sum", item);
+    console.log(isAllowed);
     if (!isAllowed) {
       throw new ForbiddenError(
         JSON.stringify({

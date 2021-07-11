@@ -1,4 +1,4 @@
-guest-user,guest
-member-user,member
-admin-user,admin
-contributor-user,contributor
+guest-user
+member-user
+admin-user
+contributor-user

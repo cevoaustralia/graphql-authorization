@@ -1,6 +1,7 @@
 const { ApolloServer } = require("apollo-server");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
+const { initOso } = require("./polars/loads");
 const { RoleRequires } = require("./utils/directive");
 const User = require("./models/user");
 
@@ -11,9 +12,11 @@ const server = new ApolloServer({
     requires: RoleRequires,
   },
   context: async ({ req }) => {
+    const oso = await initOso();
     const user = await User.initUser(req.headers.name);
     return {
       user: user,
+      oso: oso,
     };
   },
 });

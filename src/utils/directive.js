@@ -4,12 +4,12 @@ const { checkContractSum } = require("../polars/helpers");
 
 class RoleRequires extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
-    const { appRoles, projRoles } = this.args;
+    const { userRoles, projRoles } = this.args;
     const originalResolve = field.resolve || defaultFieldResolver;
 
     field.resolve = async function (...args) {
       const context = args[2];
-      context.user.requires = { appRoles, projRoles };
+      context.user.requires = { userRoles, projRoles };
       const resp = await originalResolve.apply(this, args);
 
       if (args[3].fieldName === "contract_sum") {

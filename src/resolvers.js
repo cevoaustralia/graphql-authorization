@@ -1,40 +1,37 @@
 const { ForbiddenError } = require("apollo-server");
-const { initOso } = require("./polars/loads");
 const User = require("./models/user");
 const Project = require("./models/project");
 
 const resolvers = {
   Query: {
     users: async (_, __, context) => {
-      const oso = await initOso();
-
-      if (await oso.isAllowed(context.user, "list:users", "_")) {
+      if (await context.oso.isAllowed(context.user, "list:users", "_")) {
         return await User.fetchUsers();
       } else {
         throw new ForbiddenError("Not allowed");
       }
     },
     project: async (_, args, context) => {
-      const oso = await initOso();
-      context.user.requires.userProjects = await Project.fetchUserProjectIds(
-        context.user.id
+      context.user.requires.userProjects = await Project.fetchUserProjectRoles(
+        context.user.id,
+        [args.projectId]
       );
-      const result = await Project.fetchProject(args.projectId);
-      if (await oso.isAllowed(context.user, "get:project", result)) {
-        return result;
+
+      const result = await Project.fetchProjects([args.projectId]);
+      if (await context.oso.isAllowed(context.user, "get:project", result)) {
+        return result[0];
       } else {
         throw new ForbiddenError("Not allowed");
       }
     },
     projects: async (_, __, context) => {
-      const oso = await initOso();
-      context.user.requires.userProjects = await Project.fetchUserProjectIds(
+      context.user.requires.userProjects = await Project.fetchUserProjectRoles(
         context.user.id
       );
       const results = await Project.fetchProjects();
       const authorizedResults = [];
       for (const result of results) {
-        if (await oso.isAllowed(context.user, "get:project", result)) {
+        if (await context.oso.isAllowed(context.user, "get:project", result)) {
           authorizedResults.push(result);
         }
       }

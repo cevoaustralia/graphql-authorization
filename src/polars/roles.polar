@@ -1,13 +1,14 @@
-allow(actor: User, "list:users", _: String) if
-  actor.role in actor.requires.appRoles;
+allow(user: User, "list:users", _: String) if
+  # check any of user roles matches rquired user roles
+  userRole in user.roles and userRole in user.requires.userRoles;
 
-allow(actor: User, "get:project", project: Dictionary) if
-  actor.role in actor.requires.appRoles or
-  (
-    actor.role in actor.requires.projRoles and 
-    project.id in actor.requires.userProjects
-  );
+allow(user: User, "get:project", project: Dictionary) if
+  userRole in user.roles and userRole in user.requires.userRoles
+  or
+  # complicated logic can be built in the actor class
+  user.isRequiredProjectRole(project);
 
-allow(actor: User, "contract_sum", keys: List) if
-  actor.role in actor.requires.appRoles or
-  not "contract_sum" in keys;
+allow(user: User, "contract_sum", project: Dictionary) if
+  userRole in user.roles and userRole in user.requires.userRoles
+  or
+  user.isRequiredProjectRole(project);
