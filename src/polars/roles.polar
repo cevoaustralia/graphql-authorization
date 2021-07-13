@@ -1,6 +1,15 @@
-# TODO: Add some rules!
-# allow(actor: String, "GET", _expense: Expense) if
-#     actor.endsWith("@example.com");
+allow(user: User, "list:users", _: String) if
+  # check any of user roles matches rquired user roles
+  userRole in user.roles and userRole in user.requires.userRoles;
 
-allow(actor: User, "users", _user: User) if
-  actor.role in actor.context.appRoles;
+allow(user: User, "get:project", project: Dictionary) if
+  # conditions can be created in the actor class
+  user.isRequiredUserRole()
+  or
+  user.isRequiredProjectRole(project);
+
+allow(user: User, "project_field", project: Dictionary) if
+  user.isRequiredUserRole()
+  or
+  user.isRequiredProjectRole(project);
+

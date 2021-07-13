@@ -1,24 +1,51 @@
-const { initOso } = require("./polars/loads");
+const { ForbiddenError } = require("apollo-server");
 const User = require("./models/user");
+const Project = require("./models/project");
 
 const resolvers = {
   Query: {
     users: async (_, __, context) => {
-      console.log(context);
-      // initialize Oso
-      const oso = await initOso();
-      // update current user with required roles
-      const currentUser = context.user;
-      currentUser.context = context.requires;
-      // build results
-      const users = await User.fetchUsers();
-      let results = [];
-      for (const user of users) {
-        if (await oso.isAllowed(currentUser, "users", user)) {
-          results.push(user);
+      // clone context user as it may be overwritten
+      const user = User.clone(context.user);
+      if (await context.oso.isAllowed(user, "list:users", "_")) {
+        return await User.fetchUsers();
+      } else {
+        throw new ForbiddenError(
+          JSON.stringify({ requires: user.requires, roles: user.roles })
+        );
+      }
+    },
+    project: async (_, args, context) => {
+      // clone context user as it may be overwritten
+      const user = User.clone(context.user);
+      const result = await Project.fetchProjects([args.projectId]);
+      if (await context.oso.isAllowed(user, "get:project", result[0])) {
+        return result[0];
+      } else {
+        throw new ForbiddenError(
+          JSON.stringify({ requires: user.requires, roles: user.roles })
+        );
+      }
+    },
+    projects: async (_, __, context) => {
+      // clone context user as it may be overwritten
+      const user = User.clone(context.user);
+      const results = await Project.fetchProjects();
+      const authorizedResults = [];
+      for (const result of results) {
+        if (await context.oso.isAllowed(user, "get:project", result)) {
+          authorizedResults.push(result);
         }
       }
-      return results;
+      return authorizedResults;
+    },
+    indicators: async (_, __, context) => {
+      return [];
+    },
+  },
+  Mutation: {
+    updateProjectStatus: async (_, args, context) => {
+      return {};
     },
   },
 };

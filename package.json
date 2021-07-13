@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -e js,polar ./src/index.js"
+    "start:debug": "nodemon -e js,polar ./src/index.js",
+    "start": "NODE_ENV=test nodemon -e js,polar ./src/index.js"
   },
   "repository": {
     "type": "git",

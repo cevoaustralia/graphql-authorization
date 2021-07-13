@@ -1,29 +1,54 @@
 const { gql } = require("apollo-server");
 
 const typeDefs = gql`
-  directive @passer(
-    appRoles: [AppRole]! = []
-    projRoles: [ProjRole]! = []
+  directive @auth(
+    userRoles: [UserRole]
+    projRoles: [ProjectRole]
   ) on FIELD_DEFINITION
 
-  enum AppRole {
+  enum UserRole {
     guest
     member
     admin
   }
 
-  enum ProjRole {
+  enum ProjectRole {
     contributor
   }
 
   type User {
     id: ID!
     name: String
-    role: String
+    roles: [String]
+  }
+
+  type Project {
+    id: ID!
+    name: String
+    status: String
+    contract_sum: Int @auth(userRoles: [admin], projRoles: [contributor])
+  }
+
+  type Indicator {
+    id: ID!
+    project_id: Int
+    name: String
+    risk: Int
+    quality: Int
   }
 
   type Query {
-    users: [User] @passer(appRoles: [admin])
+    users: [User] @auth(userRoles: [admin])
+    project(projectId: ID!): Project
+      @auth(userRoles: [admin, member], projRoles: [contributor])
+    projects: [Project]
+      @auth(userRoles: [admin, member], projRoles: [contributor])
+    indicators: [Indicator] @auth(userRoles: [admin], projRoles: [contributor])
+  }
+
+  type Mutation {
+    updateProjectStatus(projectId: ID!, status: String!): Project
+      @auth(userRoles: [admin], projRoles: [contributor])
   }
 `;
 

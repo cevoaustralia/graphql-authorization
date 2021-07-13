@@ -1,28 +1,36 @@
 const { ApolloServer } = require("apollo-server");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
-const { RolePasser } = require("./utils/directive");
+const { initOso } = require("./polars/loads");
+const { AuthDirective } = require("./utils/directive");
 const User = require("./models/user");
+const Project = require("./models/project");
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   schemaDirectives: {
-    passer: RolePasser,
+    auth: AuthDirective,
   },
   context: async ({ req }) => {
-    const name = req.headers.authorization;
-    const user = await User.initUser(name);
+    const oso = await initOso();
+    const user = await User.initUser(req.headers.name);
+    user.userProjRoles = await Project.fetchUserProjectRoles(user.id);
     return {
       user: user,
+      oso: oso,
     };
   },
 });
 
-server.listen().then(() => {
-  console.log(`
+server
+  .listen({
+    port: 5000,
+  })
+  .then(() => {
+    console.log(`
     Server is running!
-    Listening on port 4000
+    Listening on port 5000
     Explore at https://studio.apollographql.com/sandbox
   `);
-});
+  });
