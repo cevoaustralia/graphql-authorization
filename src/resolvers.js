@@ -8,10 +8,12 @@ const resolvers = {
       // clone context user as it may be overwritten
       const user = User.clone(context.user);
       if (await context.oso.isAllowed(user, "list:users", "_")) {
-        return await User.fetchUsers();
+        const results = await User.fetchUsers();
+        console.log(results);
+        return results;
       } else {
         throw new ForbiddenError(
-          JSON.stringify({ requires: user.requires, roles: user.roles })
+          JSON.stringify({ requires: user.requires, groups: user.groups })
         );
       }
     },
@@ -23,7 +25,7 @@ const resolvers = {
         return result[0];
       } else {
         throw new ForbiddenError(
-          JSON.stringify({ requires: user.requires, roles: user.roles })
+          JSON.stringify({ requires: user.requires, groups: user.groups })
         );
       }
     },

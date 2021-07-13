@@ -15,7 +15,7 @@ const server = new ApolloServer({
   context: async ({ req }) => {
     const oso = await initOso();
     const user = await User.initUser(req.headers.name);
-    user.userProjRoles = await Project.fetchUserProjectRoles(user.id);
+    user.userProjGroups = await Project.fetchUserProjectGroups(user.id);
     return {
       user: user,
       oso: oso,
