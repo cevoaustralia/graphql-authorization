@@ -37,7 +37,7 @@ class AuthDirective extends SchemaDirectiveVisitor {
         // check permission of fields that have a specific parent type
         if (args[3].parentType.name == "Project") {
           const user = User.clone(context.user);
-          if (!(await context.oso.isAllowed(user, "project_field", args[0]))) {
+          if (!(await context.oso.isAllowed(user, "*:project", args[0]))) {
             throw new ForbiddenError(
               JSON.stringify({ requires: user.requires, groups: user.groups })
             );

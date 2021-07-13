@@ -21,7 +21,7 @@ const resolvers = {
       // clone context user as it may be overwritten
       const user = User.clone(context.user);
       const result = await Project.fetchProjects([args.projectId]);
-      if (await context.oso.isAllowed(user, "get:project", result[0])) {
+      if (await context.oso.isAllowed(user, "*:project", result[0])) {
         return result[0];
       } else {
         throw new ForbiddenError(
@@ -35,13 +35,15 @@ const resolvers = {
       const results = await Project.fetchProjects();
       const authorizedResults = [];
       for (const result of results) {
-        if (await context.oso.isAllowed(user, "get:project", result)) {
+        if (await context.oso.isAllowed(user, "*:project", result)) {
           authorizedResults.push(result);
         }
       }
       return authorizedResults;
     },
     indicators: async (_, __, context) => {
+      const user = User.clone(context.user);
+      console.log(await context.oso.isAllowed(user, "list:indicators", "_"));
       return [];
     },
   },

@@ -24,6 +24,10 @@ class User {
     return !!filteredGroups.find((r) => projGroups.includes(r));
   }
 
+  filterAllowedProjectIds() {
+    return ["1"];
+  }
+
   static clone(user) {
     return new this(
       user.id,
