@@ -2,31 +2,31 @@ const { gql } = require("apollo-server");
 
 const typeDefs = gql`
   directive @auth(
-    userRoles: [UserRole]
-    projRoles: [ProjectRole]
-  ) on FIELD_DEFINITION
+    userGroups: [UserGroup]
+    projGroups: [ProjectGroup]
+  ) on OBJECT | FIELD_DEFINITION
 
-  enum UserRole {
+  enum UserGroup {
     guest
     member
     admin
   }
 
-  enum ProjectRole {
+  enum ProjectGroup {
     contributor
   }
 
   type User {
     id: ID!
     name: String
-    roles: [String]
+    groups: [String]
   }
 
   type Project {
     id: ID!
     name: String
     status: String
-    contract_sum: Int @auth(userRoles: [admin], projRoles: [contributor])
+    contract_sum: Int @auth(userGroups: [admin], projGroups: [contributor])
   }
 
   type Indicator {
@@ -38,17 +38,18 @@ const typeDefs = gql`
   }
 
   type Query {
-    users: [User] @auth(userRoles: [admin])
+    users: [User] @auth(userGroups: [admin])
     project(projectId: ID!): Project
-      @auth(userRoles: [admin, member], projRoles: [contributor])
+      @auth(userGroups: [admin, member], projGroups: [contributor])
     projects: [Project]
-      @auth(userRoles: [admin, member], projRoles: [contributor])
-    indicators: [Indicator] @auth(userRoles: [admin], projRoles: [contributor])
+      @auth(userGroups: [admin, member], projGroups: [contributor])
+    indicators: [Indicator]
+      @auth(userGroups: [admin], projGroups: [contributor])
   }
 
   type Mutation {
     updateProjectStatus(projectId: ID!, status: String!): Project
-      @auth(userRoles: [admin], projRoles: [contributor])
+      @auth(userGroups: [admin], projGroups: [contributor])
   }
 `;
 

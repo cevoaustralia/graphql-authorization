@@ -1,14 +1,14 @@
 const db = require("../utils/db");
 
 module.exports = {
-  fetchUserProjectRoles: async (userId, projectIds = []) => {
+  fetchUserProjectGroups: async (userId, projectIds = []) => {
     try {
       const idFilter =
         projectIds.length > 0 ? `AND project_id = ANY ($2)` : "AND 1 = $2";
       const text = `
         SELECT project_id,
-               roles
-          FROM user_project_roles
+               user_groups AS groups
+          FROM user_project_groups
          WHERE user_id = $1
            ${idFilter}
       `;

@@ -5,14 +5,14 @@ const User = require("../models/user");
 class AuthDirective extends SchemaDirectiveVisitor {
   visitObject(type) {
     this.ensureFieldsWrapped(type);
-    type._userRoles = this.args.userRoles;
-    type._projRoles = this.args.projRoles;
+    type._userGroups = this.args.userGroups;
+    type._projGroups = this.args.projGroups;
   }
 
   visitFieldDefinition(field, details) {
     this.ensureFieldsWrapped(details.objectType);
-    field._userRoles = this.args.userRoles;
-    field._projRoles = this.args.projRoles;
+    field._userGroups = this.args.userGroups;
+    field._projGroups = this.args.projGroups;
   }
 
   ensureFieldsWrapped(objectType) {
@@ -25,21 +25,21 @@ class AuthDirective extends SchemaDirectiveVisitor {
       const field = fields[fieldName];
       const { resolve = defaultFieldResolver } = field;
       field.resolve = async function (...args) {
-        const userRoles = field._userRoles || objectType._userRoles;
-        const projRoles = field._projRoles || objectType._projRoles;
-        if (!userRoles && !projRoles) {
+        const userGroups = field._userGroups || objectType._userGroups;
+        const projGroups = field._projGroups || objectType._projGroups;
+        if (!userGroups && !projGroups) {
           return resolve.apply(this, args);
         }
 
         const context = args[2];
-        context.user.requires = { userRoles, projRoles };
+        context.user.requires = { userGroups, projGroups };
 
         // check permission of fields that have a specific parent type
         if (args[3].parentType.name == "Project") {
           const user = User.clone(context.user);
           if (!(await context.oso.isAllowed(user, "project_field", args[0]))) {
             throw new ForbiddenError(
-              JSON.stringify({ requires: user.requires, roles: user.roles })
+              JSON.stringify({ requires: user.requires, groups: user.groups })
             );
           }
         }

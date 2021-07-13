@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS proj.users;
-DROP TABLE IF EXISTS proj.user_roles;
+DROP TABLE IF EXISTS proj.user_groups;
 DROP TABLE IF EXISTS proj.projects;
 DROP TABLE IF EXISTS proj.indicators;
-DROP TABLE IF EXISTS proj.user_project_roles;
+DROP TABLE IF EXISTS proj.user_project_groups;
 
 CREATE TABLE proj.users (
     id SERIAL PRIMARY KEY,
@@ -12,17 +12,17 @@ CREATE TABLE proj.users (
 COPY proj.users(name)
 FROM '/tmp/users.csv' DELIMITER ',' CSV;
 
-CREATE TABLE proj.user_roles (
+CREATE TABLE proj.user_groups (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
-    role VARCHAR(20) NOT NULL,
-    CONSTRAINT fk_user_roles__user_id
+    user_group VARCHAR(20) NOT NULL,
+    CONSTRAINT fk_user_groups__user_id
         FOREIGN KEY(user_id)
             REFERENCES proj.users(id) ON DELETE CASCADE
 );
 
-COPY proj.user_roles(user_id, role)
-FROM '/tmp/user_roles.csv' DELIMITER ',' CSV;
+COPY proj.user_groups(user_id, user_group)
+FROM '/tmp/user_groups.csv' DELIMITER ',' CSV;
 
 CREATE TABLE proj.projects (
     id SERIAL PRIMARY KEY,
@@ -47,18 +47,18 @@ CREATE TABLE proj.indicators (
 COPY proj.indicators(project_id, risk, quality)
 FROM '/tmp/indicators.csv' DELIMITER ',' CSV;
 
-CREATE TABLE proj.user_project_roles (
+CREATE TABLE proj.user_project_groups (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     project_id INT NOT NULL,
-    roles VARCHAR(20) [] NOT NULL,
-    CONSTRAINT fk_user_project_roles__user_id
+    user_groups VARCHAR(20) [] NOT NULL,
+    CONSTRAINT fk_user_project_groups__user_id
         FOREIGN KEY(user_id)
             REFERENCES proj.users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_user_project_roles__project_id
+    CONSTRAINT fk_user_project_groups__project_id
         FOREIGN KEY(project_id)
             REFERENCES proj.projects(id) ON DELETE CASCADE
 );
 
-COPY proj.user_project_roles(user_id, project_id, roles)
-FROM '/tmp/user_project_roles.csv' DELIMITER ',' CSV;
+COPY proj.user_project_groups(user_id, project_id, user_groups)
+FROM '/tmp/user_project_groups.csv' DELIMITER ',' CSV;

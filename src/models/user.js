@@ -1,34 +1,36 @@
 const db = require("../utils/db");
 
 class User {
-  constructor(id, name, roles, requires, userProjRoles) {
+  constructor(id, name, groups, requires, userProjGroups) {
     this.id = id;
     this.name = name;
-    this.roles = roles;
+    this.groups = groups;
     this.requires = requires;
-    this.userProjRoles = userProjRoles;
+    this.userProjGroups = userProjGroups;
   }
 
-  isRequiredUserRole() {
-    return !!this.roles.find(r => (this.requires.userRoles || []).includes(r))
+  isRequiredUserGroup() {
+    return !!this.groups.find((r) =>
+      (this.requires.userGroups || []).includes(r)
+    );
   }
 
-  isRequiredProjectRole(project) {
-    const projRoles = this.requires.projRoles;
-    const userProjRoles = (this.userProjRoles || [])
+  isRequiredProjectGroup(project) {
+    const projGroups = this.requires.projGroups;
+    const filteredGroups = (this.userProjGroups || [])
       .filter((up) => up.project_id === project.id)
-      .map((up) => up.roles)
+      .map((up) => up.groups)
       .flat();
-    return !!userProjRoles.find((r) => projRoles.includes(r));
+    return !!filteredGroups.find((r) => projGroups.includes(r));
   }
 
   static clone(user) {
     return new this(
       user.id,
       user.name,
-      user.roles,
+      user.groups,
       user.requires,
-      user.userProjRoles
+      user.userProjGroups
     );
   }
 
@@ -46,19 +48,19 @@ class User {
       const text = `
         SELECT u.id, 
                u.name, 
-               array_agg(r.role) AS roles
+               array_agg(g.user_group) AS groups
           FROM users u
-          JOIN user_roles r
-            ON u.id = r.user_id
+          JOIN user_groups g
+            ON u.id = g.user_id
           ${where}
       GROUP BY u.id,
                u.name               
       `;
       const { rows } = await db.query(text);
       if (!!name) {
-        return new this(rows[0].id, rows[0].name, rows[0].roles);
+        return new this(rows[0].id, rows[0].name, rows[0].groups);
       } else {
-        return rows.map((row) => new this(row.id, row.name, row.roles));
+        return rows.map((row) => new this(row.id, row.name, row.groups));
       }
     } catch (error) {
       throw new Error(error);
