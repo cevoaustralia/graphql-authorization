@@ -1,20 +1,35 @@
 const db = require("../utils/db");
 
 class User {
-  constructor(id, name, roles, requires) {
+  constructor(id, name, roles, requires, userProjRoles) {
     this.id = id;
     this.name = name;
     this.roles = roles;
     this.requires = requires;
+    this.userProjRoles = userProjRoles;
+  }
+
+  isRequiredUserRole() {
+    return !!this.roles.find(r => (this.requires.userRoles || []).includes(r))
   }
 
   isRequiredProjectRole(project) {
-    const projectRoles = this.requires.projRoles;
-    const userProjectRoles = (this.requires.userProjects || [])
+    const projRoles = this.requires.projRoles;
+    const userProjRoles = (this.userProjRoles || [])
       .filter((up) => up.project_id === project.id)
       .map((up) => up.roles)
       .flat();
-    return !!userProjectRoles.find((r) => projectRoles.includes(r));
+    return !!userProjRoles.find((r) => projRoles.includes(r));
+  }
+
+  static clone(user) {
+    return new this(
+      user.id,
+      user.name,
+      user.roles,
+      user.requires,
+      user.userProjRoles
+    );
   }
 
   static async initUser(name) {

@@ -3,12 +3,13 @@ allow(user: User, "list:users", _: String) if
   userRole in user.roles and userRole in user.requires.userRoles;
 
 allow(user: User, "get:project", project: Dictionary) if
-  userRole in user.roles and userRole in user.requires.userRoles
+  # conditions can be created in the actor class
+  user.isRequiredUserRole()
   or
-  # complicated logic can be built in the actor class
   user.isRequiredProjectRole(project);
 
-allow(user: User, "contract_sum", project: Dictionary) if
-  userRole in user.roles and userRole in user.requires.userRoles
+allow(user: User, "project_field", project: Dictionary) if
+  user.isRequiredUserRole()
   or
   user.isRequiredProjectRole(project);
+
