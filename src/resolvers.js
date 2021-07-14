@@ -8,9 +8,7 @@ const resolvers = {
       // clone context user as it may be overwritten
       const user = User.clone(context.user);
       if (await context.oso.isAllowed(user, "list:users", "_")) {
-        const results = await User.fetchUsers();
-        console.log(results);
-        return results;
+        return await User.fetchUsers();
       } else {
         throw new ForbiddenError(
           JSON.stringify({ requires: user.requires, groups: user.groups })
@@ -42,9 +40,24 @@ const resolvers = {
       return authorizedResults;
     },
     indicators: async (_, __, context) => {
+      // clone context user as it may be overwritten
       const user = User.clone(context.user);
-      console.log(await context.oso.isAllowed(user, "list:indicators", "_"));
-      return [];
+      if (await context.oso.isAllowed(user, "list:indicators", "_")) {
+        let projectId;
+        if (user.isRequiredUserGroup()) {
+          projectIds = [];
+        } else {
+          projectIds = user.filterAllowedProjectIds();
+          if (projectIds.length == 0) {
+            throw new Error("fails to pupulate project ids");
+          }
+        }
+        return await Project.fetchProjectIndicators(projectIds);
+      } else {
+        throw new ForbiddenError(
+          JSON.stringify({ requires: user.requires, groups: user.groups })
+        );
+      }
     },
   },
   Mutation: {

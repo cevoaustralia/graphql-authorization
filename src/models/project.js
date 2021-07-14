@@ -35,14 +35,14 @@ module.exports = {
       throw new Error(error);
     }
   },
-  fetchProjectIndicators: async (projectIds, where) => {
+  fetchProjectIndicators: async (projectIds) => {
     try {
-      // const idFilter =
-      //   projectIds.length > 0 ? `WHERE project_id = ANY ($1)` : "WHERE 1 = $1";
+      const idFilter =
+        projectIds.length > 0 ? `WHERE project_id = ANY ($1)` : "WHERE 1 = $1";
       const text = `
         SELECT *
           FROM indicators
-          ${where}
+          ${idFilter}
       `;
       const { rows } = await db.query(text, [
         projectIds.length > 0 ? projectIds : 1,
