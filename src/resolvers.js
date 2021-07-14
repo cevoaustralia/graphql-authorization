@@ -19,7 +19,7 @@ const resolvers = {
       // clone context user as it may be overwritten
       const user = User.clone(context.user);
       const result = await Project.fetchProjects([args.projectId]);
-      if (await context.oso.isAllowed(user, "*:project", result[0])) {
+      if (await context.oso.isAllowed(user, "get:project", result[0])) {
         return result[0];
       } else {
         throw new ForbiddenError(
@@ -33,7 +33,7 @@ const resolvers = {
       const results = await Project.fetchProjects();
       const authorizedResults = [];
       for (const result of results) {
-        if (await context.oso.isAllowed(user, "*:project", result)) {
+        if (await context.oso.isAllowed(user, "get:project", result)) {
           authorizedResults.push(result);
         }
       }
@@ -62,7 +62,21 @@ const resolvers = {
   },
   Mutation: {
     updateProjectStatus: async (_, args, context) => {
-      return {};
+      // clone context user as it may be overwritten
+      const user = User.clone(context.user);
+      if (
+        await context.oso.isAllowed(
+          user,
+          "update:project",
+          parseInt(args.projectId)
+        )
+      ) {
+        return Project.updateProjectStatus(args.projectId, args.status);
+      } else {
+        throw new ForbiddenError(
+          JSON.stringify({ requires: user.requires, groups: user.groups })
+        );
+      }
     },
   },
 };

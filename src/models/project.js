@@ -52,4 +52,18 @@ module.exports = {
       throw new Error(error);
     }
   },
+  updateProjectStatus: async (projectId, status) => {
+    try {
+      const text = `
+        UPDATE projects
+           SET status = $2
+         WHERE id = $1
+     RETURNING *
+      `;
+      const { rows } = await db.query(text, [projectId, status]);
+      return rows[0];
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
 };
