@@ -43,7 +43,7 @@ const resolvers = {
       // clone context user as it may be overwritten
       const user = User.clone(context.user);
       if (await context.oso.isAllowed(user, "list:indicators", "_")) {
-        let projectId;
+        let projectIds;
         if (user.isRequiredUserGroup()) {
           projectIds = [];
         } else {
