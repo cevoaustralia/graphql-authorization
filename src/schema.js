@@ -32,7 +32,6 @@ const typeDefs = gql`
   type Indicator {
     id: ID!
     project_id: Int
-    name: String
     risk: Int
     quality: Int
   }

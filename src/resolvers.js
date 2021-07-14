@@ -8,9 +8,7 @@ const resolvers = {
       // clone context user as it may be overwritten
       const user = User.clone(context.user);
       if (await context.oso.isAllowed(user, "list:users", "_")) {
-        const results = await User.fetchUsers();
-        console.log(results);
-        return results;
+        return await User.fetchUsers();
       } else {
         throw new ForbiddenError(
           JSON.stringify({ requires: user.requires, groups: user.groups })
@@ -21,7 +19,7 @@ const resolvers = {
       // clone context user as it may be overwritten
       const user = User.clone(context.user);
       const result = await Project.fetchProjects([args.projectId]);
-      if (await context.oso.isAllowed(user, "get:project", result[0])) {
+      if (await context.oso.isAllowed(user, "*:project", result[0])) {
         return result[0];
       } else {
         throw new ForbiddenError(
@@ -35,14 +33,31 @@ const resolvers = {
       const results = await Project.fetchProjects();
       const authorizedResults = [];
       for (const result of results) {
-        if (await context.oso.isAllowed(user, "get:project", result)) {
+        if (await context.oso.isAllowed(user, "*:project", result)) {
           authorizedResults.push(result);
         }
       }
       return authorizedResults;
     },
     indicators: async (_, __, context) => {
-      return [];
+      // clone context user as it may be overwritten
+      const user = User.clone(context.user);
+      if (await context.oso.isAllowed(user, "list:indicators", "_")) {
+        let projectId;
+        if (user.isRequiredUserGroup()) {
+          projectIds = [];
+        } else {
+          projectIds = user.filterAllowedProjectIds();
+          if (projectIds.length == 0) {
+            throw new Error("fails to pupulate project ids");
+          }
+        }
+        return await Project.fetchProjectIndicators(projectIds);
+      } else {
+        throw new ForbiddenError(
+          JSON.stringify({ requires: user.requires, groups: user.groups })
+        );
+      }
     },
   },
   Mutation: {

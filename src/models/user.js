@@ -16,12 +16,19 @@ class User {
   }
 
   isRequiredProjectGroup(project) {
-    const projGroups = this.requires.projGroups;
+    const projGroups = this.requires.projGroups || [];
     const filteredGroups = (this.userProjGroups || [])
       .filter((up) => up.project_id === project.id)
       .map((up) => up.groups)
       .flat();
     return !!filteredGroups.find((r) => projGroups.includes(r));
+  }
+
+  filterAllowedProjectIds() {
+    const projGroups = this.requires.projGroups || [];
+    return (this.userProjGroups || [])
+      .filter((up) => !!(up.groups || []).find((g) => projGroups.includes(g)))
+      .map((up) => up.project_id);
   }
 
   static clone(user) {

@@ -35,4 +35,21 @@ module.exports = {
       throw new Error(error);
     }
   },
+  fetchProjectIndicators: async (projectIds) => {
+    try {
+      const idFilter =
+        projectIds.length > 0 ? `WHERE project_id = ANY ($1)` : "WHERE 1 = $1";
+      const text = `
+        SELECT *
+          FROM indicators
+          ${idFilter}
+      `;
+      const { rows } = await db.query(text, [
+        projectIds.length > 0 ? projectIds : 1,
+      ]);
+      return rows;
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
 };
