@@ -1,5 +1,16 @@
 version: "3.7"
 services:
+  app:
+    build:
+      context: .
+    image: auth-example
+    container_name: app
+    ports:
+      - 5000:5000
+    volumes:
+      - ./src:/home/app/src
+    environment:
+      - HOST=postgres
   postgres:
     image: postgres:13
     container_name: db
